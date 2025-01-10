@@ -64,7 +64,7 @@ To get started with the application locally, follow these steps:
 1. **Clone the Repository**
 
 ```bash
-git clone ...
+git clone https://github.com/Boaz-Maroko/trendAI.git
 ```
 
 2. **Install Dependencies**
