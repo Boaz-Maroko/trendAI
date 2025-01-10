@@ -45,10 +45,12 @@ export default function CampaignDetails({ campaign }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getServerSideProps({ params, req }) {
   const { campaignId } = params;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/campaigns/${campaignId}`);
+  const baseUrl = req.headers.host ? `http://${req.headers.host}` : '';
+  const res = await fetch(`${baseUrl}/api/campaigns/${campaignId}`);
   const campaign = await res.json();
 
   return { props: { campaign } };
 }
+

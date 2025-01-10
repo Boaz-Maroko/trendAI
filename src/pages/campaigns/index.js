@@ -33,9 +33,11 @@ export default function CampaignList({ campaigns, error }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req }) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/campaigns`);
+    // Construct the absolute URL dynamically
+    const baseUrl = req.headers.host ? `http://${req.headers.host}` : '';
+    const res = await fetch(`${baseUrl}/api/campaigns`);
 
     if (!res.ok) {
       throw new Error(`HTTP error! Status: ${res.status}`);
@@ -48,3 +50,4 @@ export async function getServerSideProps() {
     return { props: { campaigns: [], error: error.message } };
   }
 }
+
