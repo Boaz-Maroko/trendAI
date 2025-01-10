@@ -47,7 +47,7 @@ export default function CampaignDetails({ campaign }) {
 
 export async function getServerSideProps({ params }) {
   const { campaignId } = params;
-  const res = await fetch(`http://localhost:3000/api/campaigns/${campaignId}`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/campaigns/${campaignId}`);
   const campaign = await res.json();
 
   return { props: { campaign } };
