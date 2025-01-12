@@ -11,19 +11,19 @@ export default function Navbar() {
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="text-white text-2xl font-bold">
-          <Link href="/">BrandName</Link>
+          <Link href="/">TrendAi</Link>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8">
           <Link
-            href="/influencer-view"
+            href="/influencer-dashboard"
             className="text-white hover:text-gray-300 transition-colors"
           >
             Influencer View
           </Link>
           <Link
-            href="/brand-view"
+            href="/brand-dashboard"
             className="text-white hover:text-gray-300 transition-colors"
           >
             Brand View

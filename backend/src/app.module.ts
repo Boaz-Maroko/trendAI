@@ -5,10 +5,12 @@ import { DatabaseModule } from './database/database.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { InfluencersModule } from './influencers/influencers.module';
+import { JwtModule } from './auth/jwt.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    JwtModule,
     CampaignsModule,
     SubmissionsModule,
     InfluencersModule,

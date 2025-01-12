@@ -28,6 +28,6 @@ export class CampaignsService {
   }
 
   async findAllCampaigns(): Promise<Campaign[]> {
-    return this.campaignModel.find().exec();
+    return this.campaignModel.find({}, {_id: 1}).exec();
   }
 }
