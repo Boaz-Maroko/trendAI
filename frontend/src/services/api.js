@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:3001'; // Update to match the API URL of your backend
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // Update to match the API URL of your backend
 
 const getToken = () => {
   if (typeof window !== "undefined") {

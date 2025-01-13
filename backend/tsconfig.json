@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "types": ["@types/node"],
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -12,10 +13,11 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "strictNullChecks": true,  // Set to true for better type safety
+    "noImplicitAny": true,     // Set to true for better type safety
+    "strictBindCallApply": true,  // Optional, enable stricter type checks
+    "forceConsistentCasingInFileNames": true, // Optional, prevents casing mismatches
+    "noFallthroughCasesInSwitch": true,  // Optional, ensures safety with switch cases
+    "moduleResolution": "node"  // Ensure Node.js style module resolution
   }
 }
