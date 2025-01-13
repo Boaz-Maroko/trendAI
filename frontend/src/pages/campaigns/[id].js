@@ -1,84 +1,55 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { getCampaignById, submitContent, getInfluencerIdByEmail } from "@/services/api";
-import { getEmailFromToken } from "@/services/api";
+import { getCampaignById, submitContent, getSubmissionsByCampaign, updateSubmissionStatus } from "@/services/api";
 
 export default function CampaignDetails() {
   const router = useRouter();
-  const { id } = router.query; 
+  const { id } = router.query;
+
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [submissionLink, setSubmissionLink] = useState("");
-  const [submissionStatus, setSubmissionStatus] = useState("");
+  const [submissions, setSubmissions] = useState([]);
+  const [activeTab, setActiveTab] = useState("influencerList"); // Tabs: "influencerList", "submissionApproval"
 
-  // Hidden fields
-  const [influencerId, setInfluencerId] = useState(null); // Influencer ID fetched from the backend
-  const submissionDate = new Date().toISOString(); // Auto-fill with the current date
-
-  // Fetch campaign details and influencer ID
   useEffect(() => {
-    if (id) { // Only fetch if id is available
+    if (id) {
       const fetchCampaign = async () => {
         try {
-          const data = await getCampaignById(id); // Fetch campaign by ID
+          const data = await getCampaignById(id);
           setCampaign(data);
-          setLoading(false);
         } catch (err) {
           setError("Error fetching campaign details.");
+        } finally {
           setLoading(false);
         }
       };
-      fetchCampaign();
-    }
-  }, [id]); // Depend on id, so this effect runs when id changes
 
-  useEffect(() => {
-    const fetchInfluencerId = async () => {
-      const email = await getEmailFromToken(); // Get email from JWT token
-      if (email) {
-        console.log(email);
+      const fetchSubmissions = async () => {
         try {
-          const id = await getInfluencerIdByEmail(email);
-          setInfluencerId(id);
+          const data = await getSubmissionsByCampaign(id);
+          setSubmissions(data);
         } catch (err) {
-          setError("Error fetching influencer ID.");
+          setError("Error fetching submissions.");
         }
-      } else {
-        setError("Email not found in token.");
-      }
-    };
+      };
 
-    fetchInfluencerId();
-  }, []); // Empty dependency array ensures this runs only once
-
-  // Handle content submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!submissionLink) {
-      setSubmissionStatus("Please provide a submission link.");
-      return;
+      fetchCampaign();
+      fetchSubmissions();
     }
+  }, [id]);
 
-    if (!influencerId) {
-      setSubmissionStatus("Error: Influencer ID is not available.");
-      return;
-    }
-
-    const formData = {
-      campaign_id: id,
-      influencer_id: influencerId,
-      submission_link: submissionLink,
-      submission_date: submissionDate,
-      status: "pending", // Default status is 'pending'
-    };
-
+  const handleApproveReject = async (submissionId, status) => {
     try {
-      await submitContent(formData); // Submit the content using the API
-      setSubmissionStatus("Submission successful!");
+      // Assuming you have an endpoint to update submission status
+      await updateSubmissionStatus(submissionId, { status });
+      setSubmissions((prevSubmissions) =>
+        prevSubmissions.map((sub) =>
+          sub._id === submissionId ? { ...sub, status } : sub
+        )
+      );
     } catch (err) {
-      setSubmissionStatus("Error submitting content.");
+      console.error("Error updating submission status", err);
     }
   };
 
@@ -92,49 +63,110 @@ export default function CampaignDetails() {
       <p>Deadline: {new Date(campaign.deadline).toLocaleString()}</p>
       <p className="mt-4">{campaign.instructions}</p>
 
-      {/* Submission Form */}
-      <form onSubmit={handleSubmit} className="mt-6">
-        {/* Hidden Fields */}
-        <input
-          type="hidden"
-          value={id}
-          name="campaign_id"
-        />
-        <input
-          type="hidden"
-          value={influencerId}
-          name="influencer_id"
-        />
-        <input
-          type="hidden"
-          value={submissionDate}
-          name="submission_date"
-        />
-        <input
-          type="hidden"
-          value="pending"
-          name="status"
-        />
-
-        <label className="block mb-2">
-          <span className="text-gray-700">Submission Link:</span>
-          <input
-            type="text"
-            className="block w-full mt-1"
-            placeholder="Enter your submission link"
-            value={submissionLink}
-            onChange={(e) => setSubmissionLink(e.target.value)}
-          />
-        </label>
-
+      {/* Tabs */}
+      <div className="mt-6 border-b">
         <button
-          type="submit"
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          className={`px-4 py-2 ${
+            activeTab === "influencerList" ? "border-b-2 border-blue-500" : ""
+          }`}
+          onClick={() => setActiveTab("influencerList")}
         >
-          Submit
+          Influencer List
         </button>
-      </form>
-      {submissionStatus && <p className="mt-4">{submissionStatus}</p>}
+        <button
+          className={`px-4 py-2 ${
+            activeTab === "submissionApproval" ? "border-b-2 border-blue-500" : ""
+          }`}
+          onClick={() => setActiveTab("submissionApproval")}
+        >
+          Submission Approval
+        </button>
+      </div>
+
+      {/* Influencer List */}
+      {activeTab === "influencerList" && (
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold mb-4">Influencers</h2>
+          {submissions.length > 0 ? (
+            <ul>
+              {submissions.map((submission) => (
+                <li
+                  key={submission._id}
+                  className="mb-4 p-4 border rounded-lg bg-gray-100"
+                >
+                  <p>
+                    <strong>Influencer ID:</strong> {submission.influencer_id}
+                  </p>
+                  <p>
+                    <strong>Submission Date:</strong>{" "}
+                    {new Date(submission.submission_date).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Post Count:</strong> {submission.post_count || 0}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No influencers have joined this campaign yet.</p>
+          )}
+        </div>
+      )}
+
+      {/* Submission Approval */}
+      {activeTab === "submissionApproval" && (
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold mb-4">Submissions</h2>
+          {submissions.length > 0 ? (
+            <ul>
+              {submissions.map((submission) => (
+                <li
+                  key={submission._id}
+                  className="mb-4 p-4 border rounded-lg bg-gray-100"
+                >
+                  <p>
+                    <strong>Influencer ID:</strong> {submission.influencer_id}
+                  </p>
+                  <p>
+                    <strong>Submission Link:</strong>{" "}
+                    <a
+                      href={submission.submission_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {submission.submission_link}
+                    </a>
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {submission.status}
+                  </p>
+                  <div className="mt-2">
+                    <button
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg mr-2"
+                      onClick={() =>
+                        handleApproveReject(submission._id, "approved")
+                      }
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                      onClick={() =>
+                        handleApproveReject(submission._id, "rejected")
+                      }
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No submissions available for approval.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

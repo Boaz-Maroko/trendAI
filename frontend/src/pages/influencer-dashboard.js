@@ -25,7 +25,7 @@ export default function InfluencerDashboard() {
   }, []);
 
   const handleCampaignClick = (id) => {
-    router.push(`/campaigns/${id}`); // Navigate to the details page with campaign id
+    router.push(`/influencers/${id}`); // Navigate to the details page with campaign id
   };
 
 

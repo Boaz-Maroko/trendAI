@@ -41,6 +41,17 @@ export const getAllCampaigns = async () => {
   }
 };
 
+
+export const createCampaign = async (campaignData) => {
+  try {
+    const response = await axios.post(`${API_URL}/campaigns`, campaignData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating campaign:", error);
+    throw error;
+  }
+};
+
 export const getCampaignById = async (id) => {
   try {
     const response = await axios.get(`${API_URL}/campaigns/${id}`);
@@ -83,5 +94,25 @@ export const getInfluencerIdByEmail = async (email) => {
   } catch (error) {
     console.error("Error fetching influencer ID by email:", error);
     throw error; // Throw error to be handled in the component
+  }
+};
+
+export const getSubmissionsByCampaign = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/submissions/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching the submissions", error);
+    throw error;
+  }
+};
+
+export const updateSubmissionStatus = async (submissionId, statusData) => {
+  try {
+    const response = await axios.patch(`${API_URL}/submissions/${submissionId}`, statusData);
+    return response.data;
+  } catch (error) {
+    console.error("Error Updating submission status:", error)
+    throw error;
   }
 };

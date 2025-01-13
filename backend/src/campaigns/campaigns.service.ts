@@ -14,7 +14,10 @@ export class CampaignsService {
 
   // Method to fetch a single campaign by its ID
   async findCampaignById(id: string): Promise<Campaign> {
-    return this.campaignModel.findById(id).exec(); // Fetch the campaign using the provided ID
+    return this.campaignModel
+      .findById(id)
+      .populate('influencers') // Populate the influencers field
+      .exec(); // Execute the query
   }
 
   async findCampaignsByInfluencer(influencerId: string): Promise<Campaign[]> {
@@ -28,6 +31,6 @@ export class CampaignsService {
   }
 
   async findAllCampaigns(): Promise<Campaign[]> {
-    return this.campaignModel.find({}, {_id: 1}).exec();
+    return this.campaignModel.find({}, {_v: 0}).exec();
   }
 }
